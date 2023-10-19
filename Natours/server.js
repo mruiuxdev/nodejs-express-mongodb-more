@@ -8,4 +8,4 @@ const port = process.env.PORT;
 
 mongoose.connect(mongoDB).then(() => console.log('Connection successful'));
 
-app.listen(port, () => console.log(`App is running on port ${port}`));
+app.listen(port || 3000, () => console.log(`App is running on port ${port}`));
