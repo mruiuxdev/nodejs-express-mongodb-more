@@ -43,7 +43,7 @@ const getTour = async (req, res) => {
 
 const createTour = async (req, res) => {
   try {
-    const newTour = await Tour.create(req.body);
+    const newTour = await Tour.create(req.body, { runValidators: true });
 
     res.status(201).json({ status: 'success', data: { tour: newTour } });
   } catch (err) {
