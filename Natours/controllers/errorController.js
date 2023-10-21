@@ -30,7 +30,7 @@ const sendErrDev = (err, res) => {
 };
 
 const sendErrProd = (err, res) => {
-  if (err.isOperational) {
+  if (process.env.NODE_ENV === 'production') {
     res.status(err.statusCode).json({
       status: err.status,
       message: err.message,
@@ -51,7 +51,7 @@ const globalErrorHandler = (err, req, res, next) => {
 
   if (process.env.NODE_ENV === 'development') {
     sendErrDev(err, res);
-  } else if (process.env.NODE_ENV === 'production') {
+  } else {
     let error = { ...err };
 
     if (error.name === 'CastError') error = handleCastErrorDB(error);
