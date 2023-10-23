@@ -30,19 +30,10 @@ const sendErrDev = (err, res) => {
 };
 
 const sendErrProd = (err, res) => {
-  if (process.env.NODE_ENV === 'production') {
-    res.status(err.statusCode).json({
-      status: err.status,
-      message: err.message,
-    });
-  } else {
-    console.error('Error', err);
-
-    res.status(500).json({
-      status: 'error',
-      message: 'Something went wrong!',
-    });
-  }
+  res.status(err.statusCode).json({
+    status: err.status,
+    message: err.message,
+  });
 };
 
 const globalErrorHandler = (err, req, res, next) => {
