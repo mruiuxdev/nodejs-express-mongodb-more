@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
+// eslint-disable-next-line import/no-extraneous-dependencies
 const bcrypt = require('bcryptjs');
 
 const userSchema = new mongoose.Schema(
@@ -20,6 +21,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Please provide a password'],
       minlength: 8,
+      select: false,
     },
     passwordConfirm: {
       type: String,
@@ -30,6 +32,7 @@ const userSchema = new mongoose.Schema(
         },
         message: 'Passwords are not the same',
       },
+      select: false,
     },
   },
   { timestamps: true },
@@ -43,6 +46,13 @@ userSchema.pre('save', async function (next) {
 
   next();
 });
+
+userSchema.methods.correctPassword = async function (
+  candidatePassword,
+  userPassword,
+) {
+  return bcrypt.compare(candidatePassword, userPassword);
+};
 
 const User = mongoose.model('User', userSchema);
 
