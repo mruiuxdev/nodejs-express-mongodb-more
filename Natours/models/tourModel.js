@@ -1,8 +1,5 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
 const mongoose = require('mongoose');
-// eslint-disable-next-line import/no-extraneous-dependencies
 const slugify = require('slugify');
-// eslint-disable-next-line import/no-extraneous-dependencies
 const validator = require('validator');
 
 const isAlphaWithSpaces = (value) => validator.isAlpha(value.replace(/ /g, ''));

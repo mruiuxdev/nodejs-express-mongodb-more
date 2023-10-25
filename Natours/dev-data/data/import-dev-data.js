@@ -1,6 +1,6 @@
 const fs = require('fs');
 const dotenv = require('dotenv');
-// eslint-disable-next-line import/no-extraneous-dependencies
+
 const mongoose = require('mongoose');
 const Tour = require('../../models/tourModel');
 

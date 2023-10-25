@@ -1,7 +1,5 @@
-const app = require('./app');
-/* eslint-disable import/order */
-// eslint-disable-next-line import/no-extraneous-dependencies
 const mongoose = require('mongoose');
+const app = require('./app');
 
 const mongoDB = process.env.DB_URL;
 const port = process.env.PORT;
