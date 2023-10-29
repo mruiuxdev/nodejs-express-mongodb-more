@@ -11,6 +11,16 @@ const jwtToken = (id) =>
     expiresIn: process.env.JWT_EXPIRES,
   });
 
+const createSendToken = (user, statusCode, res) => {
+  const token = jwtToken(user._id);
+
+  res.status(statusCode).json({
+    status: 'success',
+    token,
+    data: { user },
+  });
+};
+
 const signup = catchAsync(async (req, res, next) => {
   const { name, email, password, passwordConfirm, role } = req.body;
 
@@ -22,13 +32,7 @@ const signup = catchAsync(async (req, res, next) => {
     role,
   });
 
-  const token = jwtToken(newUser._id);
-
-  res.status(201).json({
-    status: 'success',
-    token,
-    data: { user: newUser },
-  });
+  createSendToken(newUser, 201, res);
 });
 
 const login = catchAsync(async (req, res, next) => {
@@ -46,9 +50,7 @@ const login = catchAsync(async (req, res, next) => {
     return next(new AppError('Incorrect email or password', 401));
   }
 
-  const token = jwtToken(user._id);
-
-  res.status(200).json({ status: 'success', token });
+  createSendToken(user, 200, res);
 });
 
 const protect = catchAsync(async (req, res, next) => {
@@ -133,8 +135,6 @@ const forgetPassword = catchAsync(async (req, res, next) => {
 
     await user.save({ validateBeforeSave: false });
 
-    console.log(err);
-
     return next(
       new AppError(
         'There was an error sending the email. Try again later!',
@@ -143,6 +143,7 @@ const forgetPassword = catchAsync(async (req, res, next) => {
     );
   }
 });
+
 const resetPassword = catchAsync(async (req, res, next) => {
   const hashedToken = crypto
     .createHash('sha256')
@@ -161,13 +162,26 @@ const resetPassword = catchAsync(async (req, res, next) => {
   user.password = req.body.password;
   user.passwordConfirm = req.body.passwordConfirm;
   user.passwordResetToken = undefined;
-  user.passwordExpiresToken = undefined;
+  user.passwordResetExpires = undefined;
 
   await user.save();
 
-  const token = jwtToken(user._id);
+  createSendToken(user, 200, res);
+});
 
-  res.status(200).json({ status: 'success', token });
+const updatePassword = catchAsync(async (req, res, next) => {
+  const user = await User.findById(req.user.id).select('+password');
+
+  if (!(await user.correctPassword(req.body.passwordCurrent, user.password))) {
+    return next(new AppError('Your current password is wrong.', 401));
+  }
+
+  user.password = req.body.password;
+  user.passwordConfirm = req.body.passwordConfirm;
+
+  await user.save();
+
+  createSendToken(user, 200, res);
 });
 
 module.exports = {
@@ -177,4 +191,5 @@ module.exports = {
   restrictTo,
   forgetPassword,
   resetPassword,
+  updatePassword,
 };
