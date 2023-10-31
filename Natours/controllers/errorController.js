@@ -36,10 +36,19 @@ const sendErrDev = (err, res) => {
 };
 
 const sendErrProd = (err, res) => {
-  res.status(err.statusCode).json({
-    status: err.status,
-    message: err.message,
-  });
+  if (err.isOperational) {
+    res.status(err.statusCode).json({
+      status: err.status,
+      message: err.message,
+    });
+  } else {
+    console.log('Error', err);
+
+    res.status(500).json({
+      status: 'error',
+      message: 'Something went wrong',
+    });
+  }
 };
 
 const globalErrorHandler = (err, req, res, next) => {
@@ -48,7 +57,7 @@ const globalErrorHandler = (err, req, res, next) => {
 
   if (process.env.NODE_ENV === 'development') {
     sendErrDev(err, res);
-  } else {
+  } else if (process.env.NODE_ENV === 'production') {
     let error = { ...err };
 
     if (error.name === 'CastError') error = handleCastErrorDB(error);
